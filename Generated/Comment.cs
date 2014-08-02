@@ -1,516 +1,281 @@
-﻿using System;
+﻿
+
+using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Reflection;
 
 namespace ProtestLib
 {
-    [Serializable]
-    public partial class Comment
-    {
-        #region Declarations
-        System.Int32 _id;
-        System.String _contentType;
-        System.Int32 _contentId;
-        System.Int32 _parentId;
-        System.Int32 _userId;
-        System.String _body;
-        System.DateTime _postedDate;
-        System.Boolean _active;
-        System.String _ipAddress;
+	[Serializable]
+	public partial class Comment
+	{
+		#region Declarations
+		System.Int32 _id;
+		System.String _contentType;
+		System.Int32 _contentId;
+		System.Int32 _parentId;
+		System.Int32 _userId;
+		System.String _body;
+		System.DateTime _postedDate;
+		System.Boolean _active;
+		System.String _ipAddress;
 
-        bool _isIdNull = true;
-        bool _isContentTypeNull = true;
-        bool _isContentIdNull = true;
-        bool _isParentIdNull = true;
-        bool _isUserIdNull = true;
-        bool _isBodyNull = true;
-        bool _isPostedDateNull = true;
-        bool _isActiveNull = true;
-        bool _isIpAddressNull = true;
+		bool _isIdNull = true;
+		bool _isContentTypeNull = true;
+		bool _isContentIdNull = true;
+		bool _isParentIdNull = true;
+		bool _isUserIdNull = true;
+		bool _isBodyNull = true;
+		bool _isPostedDateNull = true;
+		bool _isActiveNull = true;
+		bool _isIpAddressNull = true;
+		#endregion
 
-        #endregion
+		#region Properties
+		public System.Int32 Id
+		{
+			get { return _id; }
+			set { _id = value; _isIdNull = false; }
+		}
+		public System.String ContentType
+		{
+			get { return _contentType; }
+			set { _contentType = value; _isContentTypeNull = false; }
+		}
+		public System.Int32 ContentId
+		{
+			get { return _contentId; }
+			set { _contentId = value; _isContentIdNull = false; }
+		}
+		public System.Int32 ParentId
+		{
+			get { return _parentId; }
+			set { _parentId = value; _isParentIdNull = false; }
+		}
+		public System.Int32 UserId
+		{
+			get { return _userId; }
+			set { _userId = value; _isUserIdNull = false; }
+		}
+		public System.String Body
+		{
+			get { return _body; }
+			set { _body = value; _isBodyNull = false; }
+		}
+		public System.DateTime PostedDate
+		{
+			get { return _postedDate; }
+			set { _postedDate = value; _isPostedDateNull = false; }
+		}
+		public System.Boolean Active
+		{
+			get { return _active; }
+			set { _active = value; _isActiveNull = false; }
+		}
+		public System.String IpAddress
+		{
+			get { return _ipAddress; }
+			set { _ipAddress = value; _isIpAddressNull = false; }
+		}
+		public bool IsIdNull
+		{
+			get { return _isIdNull; }
+			set
+			{
+				if (!value) throw new Exception("Can not set this property to false");
+				_isIdNull = value;
+				_id = -1;
+			}
+		}
+		public bool IsContentTypeNull
+		{
+			get { return _isContentTypeNull; }
+			set
+			{
+				if (!value) throw new Exception("Can not set this property to false");
+				_isContentTypeNull = value;
+				_contentType = System.String.Empty;
+			}
+		}
+		public bool IsContentIdNull
+		{
+			get { return _isContentIdNull; }
+			set
+			{
+				if (!value) throw new Exception("Can not set this property to false");
+				_isContentIdNull = value;
+				_contentId = -1;
+			}
+		}
+		public bool IsParentIdNull
+		{
+			get { return _isParentIdNull; }
+			set
+			{
+				if (!value) throw new Exception("Can not set this property to false");
+				_isParentIdNull = value;
+				_parentId = -1;
+			}
+		}
+		public bool IsUserIdNull
+		{
+			get { return _isUserIdNull; }
+			set
+			{
+				if (!value) throw new Exception("Can not set this property to false");
+				_isUserIdNull = value;
+				_userId = -1;
+			}
+		}
+		public bool IsBodyNull
+		{
+			get { return _isBodyNull; }
+			set
+			{
+				if (!value) throw new Exception("Can not set this property to false");
+				_isBodyNull = value;
+				_body = System.String.Empty;
+			}
+		}
+		public bool IsPostedDateNull
+		{
+			get { return _isPostedDateNull; }
+			set
+			{
+				if (!value) throw new Exception("Can not set this property to false");
+				_isPostedDateNull = value;
+				_postedDate = DateTime.MinValue;
+			}
+		}
+		public bool IsActiveNull
+		{
+			get { return _isActiveNull; }
+			set
+			{
+				if (!value) throw new Exception("Can not set this property to false");
+				_isActiveNull = value;
+				_active = false;
+			}
+		}
+		public bool IsIpAddressNull
+		{
+			get { return _isIpAddressNull; }
+			set
+			{
+				if (!value) throw new Exception("Can not set this property to false");
+				_isIpAddressNull = value;
+				_ipAddress = System.String.Empty;
+			}
+		}
+		#endregion
 
-        #region Properties
-        public System.Int32 Id
-        {
-            get { return _id; }
-            set
-            {
-                _id = value;
-                _isIdNull = false;
-            }
-        }
+		#region Constructors
+		public Comment()
+		{
+		}
 
-        public System.String ContentType
-        {
-            get { return _contentType; }
-            set
-            {
-                _contentType = value;
-                _isContentTypeNull = false;
-            }
-        }
+		public Comment(DataRow row)
+		{
+			if (row.Table.Columns.Contains("Id"))
+			{
+				if (Convert.IsDBNull(row["Id"])) this.IsIdNull = true;
+				else this.Id = Convert.ToInt32(row["Id"]);
+			}
+			if (row.Table.Columns.Contains("ContentType"))
+			{
+				if (Convert.IsDBNull(row["ContentType"])) this.IsContentTypeNull = true;
+				else this.ContentType = Convert.ToString(row["ContentType"]);
+			}
+			if (row.Table.Columns.Contains("ContentId"))
+			{
+				if (Convert.IsDBNull(row["ContentId"])) this.IsContentIdNull = true;
+				else this.ContentId = Convert.ToInt32(row["ContentId"]);
+			}
+			if (row.Table.Columns.Contains("ParentId"))
+			{
+				if (Convert.IsDBNull(row["ParentId"])) this.IsParentIdNull = true;
+				else this.ParentId = Convert.ToInt32(row["ParentId"]);
+			}
+			if (row.Table.Columns.Contains("UserId"))
+			{
+				if (Convert.IsDBNull(row["UserId"])) this.IsUserIdNull = true;
+				else this.UserId = Convert.ToInt32(row["UserId"]);
+			}
+			if (row.Table.Columns.Contains("Body"))
+			{
+				if (Convert.IsDBNull(row["Body"])) this.IsBodyNull = true;
+				else this.Body = Convert.ToString(row["Body"]);
+			}
+			if (row.Table.Columns.Contains("PostedDate"))
+			{
+				if (Convert.IsDBNull(row["PostedDate"])) this.IsPostedDateNull = true;
+				else this.PostedDate = Convert.ToDateTime(row["PostedDate"]);
+			}
+			if (row.Table.Columns.Contains("Active"))
+			{
+				if (Convert.IsDBNull(row["Active"])) this.IsActiveNull = true;
+				else this.Active = Convert.ToBoolean(row["Active"]);
+			}
+			if (row.Table.Columns.Contains("IpAddress"))
+			{
+				if (Convert.IsDBNull(row["IpAddress"])) this.IsIpAddressNull = true;
+				else this.IpAddress = Convert.ToString(row["IpAddress"]);
+			}
+		}
+		#endregion
 
-        public System.Int32 ContentId
-        {
-            get { return _contentId; }
-            set
-            {
-                _contentId = value;
-                _isContentIdNull = false;
-            }
-        }
+		#region Methods
+		public static Comment Load(string sql, CommandType commandType = CommandType.Text, SqlParameter[] parameters = null)
+		{
+			Comments comments = Comments.Load(sql, commandType, parameters);
+			return (comments.Count == 0) ? null : comments[0];
+		}
 
-        public System.Int32 ParentId
-        {
-            get { return _parentId; }
-            set
-            {
-                _parentId = value;
-                _isParentIdNull = false;
-            }
-        }
+		public static Comment Load(int id)
+		{
+			return Load("LoadComment", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@Id", id) });
+		}
 
-        public System.Int32 UserId
-        {
-            get { return _userId; }
-            set
-            {
-                _userId = value;
-                _isUserIdNull = false;
-            }
-        }
+		internal SqlCommand GetSaveCommand(SqlConnection conn)
+		{
+			SqlCommand cmd = new SqlCommand("SaveComment", conn);
+			cmd.CommandType = CommandType.StoredProcedure;
+			cmd.Parameters.AddWithValue("@Id", (_isIdNull) ? System.DBNull.Value : (object)_id);
+			cmd.Parameters.AddWithValue("@ContentType", (_isContentTypeNull) ? System.DBNull.Value : (object)_contentType);
+			cmd.Parameters.AddWithValue("@ContentId", (_isContentIdNull) ? System.DBNull.Value : (object)_contentId);
+			cmd.Parameters.AddWithValue("@ParentId", (_isParentIdNull) ? System.DBNull.Value : (object)_parentId);
+			cmd.Parameters.AddWithValue("@UserId", (_isUserIdNull) ? System.DBNull.Value : (object)_userId);
+			cmd.Parameters.AddWithValue("@Body", (_isBodyNull) ? System.DBNull.Value : (object)_body);
+			cmd.Parameters.AddWithValue("@PostedDate", (_isPostedDateNull) ? System.DBNull.Value : (object)_postedDate);
+			cmd.Parameters.AddWithValue("@Active", (_isActiveNull) ? System.DBNull.Value : (object)_active);
+			cmd.Parameters.AddWithValue("@IpAddress", (_isIpAddressNull) ? System.DBNull.Value : (object)_ipAddress);
+			return cmd;
+		}
 
-        public System.String Body
-        {
-            get { return _body; }
-            set
-            {
-                _body = value;
-                _isBodyNull = false;
-            }
-        }
+		public int Save()
+		{
+			SqlCommand cmd = GetSaveCommand(DBHelper.Connection);
+			cmd.Connection.Open();
+			try
+			{
+				DBHelper.SetContextInfo(cmd.Connection);
+				Id = Convert.ToInt32(cmd.ExecuteScalar());
+			}
+			catch (Exception ex) { throw ex; }
+			finally { cmd.Connection.Close(); }
+			return Id;
+		}
 
-        public System.DateTime PostedDate
-        {
-            get { return _postedDate; }
-            set
-            {
-                _postedDate = value;
-                _isPostedDateNull = false;
-            }
-        }
+		public static void Delete(int id)
+		{
+			DBHelper.ExecuteNonQuery("DeleteComment", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@Id", id) });
+		}
 
-        public System.Boolean Active
-        {
-            get { return _active; }
-            set
-            {
-                _active = value;
-                _isActiveNull = false;
-            }
-        }
-
-        public System.String IpAddress
-        {
-            get { return _ipAddress; }
-            set
-            {
-                _ipAddress = value;
-                _isIpAddressNull = false;
-            }
-        }
-
-
-        public bool IsIdNull
-        {
-            get { return _isIdNull; }
-            set
-            {
-                if (!value) throw new Exception("Can not set this property to false");
-                _isIdNull = value;
-                _id = -1;
-            }
-        }
-
-        public bool IsContentTypeNull
-        {
-            get { return _isContentTypeNull; }
-            set
-            {
-                if (!value) throw new Exception("Can not set this property to false");
-                _isContentTypeNull = value;
-                _contentType = System.String.Empty;
-            }
-        }
-
-        public bool IsContentIdNull
-        {
-            get { return _isContentIdNull; }
-            set
-            {
-                if (!value) throw new Exception("Can not set this property to false");
-                _isContentIdNull = value;
-                _contentId = -1;
-            }
-        }
-
-        public bool IsParentIdNull
-        {
-            get { return _isParentIdNull; }
-            set
-            {
-                if (!value) throw new Exception("Can not set this property to false");
-                _isParentIdNull = value;
-                _parentId = -1;
-            }
-        }
-
-        public bool IsUserIdNull
-        {
-            get { return _isUserIdNull; }
-            set
-            {
-                if (!value) throw new Exception("Can not set this property to false");
-                _isUserIdNull = value;
-                _userId = -1;
-            }
-        }
-
-        public bool IsBodyNull
-        {
-            get { return _isBodyNull; }
-            set
-            {
-                if (!value) throw new Exception("Can not set this property to false");
-                _isBodyNull = value;
-                _body = System.String.Empty;
-            }
-        }
-
-        public bool IsPostedDateNull
-        {
-            get { return _isPostedDateNull; }
-            set
-            {
-                if (!value) throw new Exception("Can not set this property to false");
-                _isPostedDateNull = value;
-                _postedDate = DateTime.MinValue;
-            }
-        }
-
-        public bool IsActiveNull
-        {
-            get { return _isActiveNull; }
-            set
-            {
-                if (!value) throw new Exception("Can not set this property to false");
-                _isActiveNull = value;
-                _active = false;
-            }
-        }
-
-        public bool IsIpAddressNull
-        {
-            get { return _isIpAddressNull; }
-            set
-            {
-                if (!value) throw new Exception("Can not set this property to false");
-                _isIpAddressNull = value;
-                _ipAddress = System.String.Empty;
-            }
-        }
-
-
-        #endregion
-
-        #region Constructor
-        public Comment()
-        {
-        }
-        #endregion
-
-        #region Methods
-        public static Comment LoadComment(int commentId)
-        {
-            SqlDataAdapter adapter = new SqlDataAdapter("LoadComment", ProtestLib.Global.Connection);
-            adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
-            adapter.SelectCommand.Parameters.AddWithValue("@Id", commentId);
-            DataTable dt = new DataTable();
-            adapter.Fill(dt);
-            if (dt.Rows.Count == 0) return null;
-            DataRow row = dt.Rows[0];
-            return GetComment(row);
-        }
-
-        internal static Comment GetComment(DataRow row)
-        {
-            Comment result = new Comment();
-            if (row.Table.Columns.Contains("Id"))
-            {
-                if (Convert.IsDBNull(row["Id"]))
-                {
-                    result._isIdNull = true;
-                }
-                else
-                {
-                    result._id = Convert.ToInt32(row["Id"]);
-                    result._isIdNull = false;
-                }
-            }
-
-            if (row.Table.Columns.Contains("ContentType"))
-            {
-                if (Convert.IsDBNull(row["ContentType"]))
-                {
-                    result._isContentTypeNull = true;
-                }
-                else
-                {
-                    result._contentType = Convert.ToString(row["ContentType"]);
-                    result._isContentTypeNull = false;
-                }
-            }
-
-            if (row.Table.Columns.Contains("ContentId"))
-            {
-                if (Convert.IsDBNull(row["ContentId"]))
-                {
-                    result._isContentIdNull = true;
-                }
-                else
-                {
-                    result._contentId = Convert.ToInt32(row["ContentId"]);
-                    result._isContentIdNull = false;
-                }
-            }
-
-            if (row.Table.Columns.Contains("ParentId"))
-            {
-                if (Convert.IsDBNull(row["ParentId"]))
-                {
-                    result._isParentIdNull = true;
-                }
-                else
-                {
-                    result._parentId = Convert.ToInt32(row["ParentId"]);
-                    result._isParentIdNull = false;
-                }
-            }
-
-            if (row.Table.Columns.Contains("UserId"))
-            {
-                if (Convert.IsDBNull(row["UserId"]))
-                {
-                    result._isUserIdNull = true;
-                }
-                else
-                {
-                    result._userId = Convert.ToInt32(row["UserId"]);
-                    result._isUserIdNull = false;
-                }
-            }
-
-            if (row.Table.Columns.Contains("Body"))
-            {
-                if (Convert.IsDBNull(row["Body"]))
-                {
-                    result._isBodyNull = true;
-                }
-                else
-                {
-                    result._body = Convert.ToString(row["Body"]);
-                    result._isBodyNull = false;
-                }
-            }
-
-            if (row.Table.Columns.Contains("PostedDate"))
-            {
-                if (Convert.IsDBNull(row["PostedDate"]))
-                {
-                    result._isPostedDateNull = true;
-                }
-                else
-                {
-                    result._postedDate = Convert.ToDateTime(row["PostedDate"]);
-                    result._isPostedDateNull = false;
-                }
-            }
-
-            if (row.Table.Columns.Contains("Active"))
-            {
-                if (Convert.IsDBNull(row["Active"]))
-                {
-                    result._isActiveNull = true;
-                }
-                else
-                {
-                    result._active = Convert.ToBoolean(row["Active"]);
-                    result._isActiveNull = false;
-                }
-            }
-
-            if (row.Table.Columns.Contains("IpAddress"))
-            {
-                if (Convert.IsDBNull(row["IpAddress"]))
-                {
-                    result._isIpAddressNull = true;
-                }
-                else
-                {
-                    result._ipAddress = Convert.ToString(row["IpAddress"]);
-                    result._isIpAddressNull = false;
-                }
-            }
-
-            return result;
-        }
-
-        public static SqlCommand GetSaveCommand(Comment comment, SqlConnection conn)
-        {
-            SqlCommand cmd = new SqlCommand("SaveComment", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
-            if (comment._isIdNull)
-            {
-                cmd.Parameters.AddWithValue("@Id", System.DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("@Id", comment._id);
-            }
-
-            if (comment._isContentTypeNull)
-            {
-                cmd.Parameters.AddWithValue("@ContentType", System.DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("@ContentType", comment._contentType);
-            }
-
-            if (comment._isContentIdNull)
-            {
-                cmd.Parameters.AddWithValue("@ContentId", System.DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("@ContentId", comment._contentId);
-            }
-
-            if (comment._isParentIdNull)
-            {
-                cmd.Parameters.AddWithValue("@ParentId", System.DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("@ParentId", comment._parentId);
-            }
-
-            if (comment._isUserIdNull)
-            {
-                cmd.Parameters.AddWithValue("@UserId", System.DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("@UserId", comment._userId);
-            }
-
-            if (comment._isBodyNull)
-            {
-                cmd.Parameters.AddWithValue("@Body", System.DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("@Body", comment._body);
-            }
-
-            if (comment._isPostedDateNull)
-            {
-                cmd.Parameters.AddWithValue("@PostedDate", System.DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("@PostedDate", comment._postedDate);
-            }
-
-            if (comment._isActiveNull)
-            {
-                cmd.Parameters.AddWithValue("@Active", System.DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("@Active", comment._active);
-            }
-
-            if (comment._isIpAddressNull)
-            {
-                cmd.Parameters.AddWithValue("@IpAddress", System.DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("@IpAddress", comment._ipAddress);
-            }
-
-            return cmd;
-        }
-
-        public static int SaveComment(Comment comment)
-        {
-            int result = 0;
-            SqlCommand cmd = GetSaveCommand(comment, ProtestLib.Global.Connection);
-            cmd.Connection.Open();
-            try
-            {
-                Utils.SetContextInfo(cmd.Connection);
-                result = Convert.ToInt32(cmd.ExecuteScalar());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                cmd.Connection.Close();
-            }
-            comment.Id = result;
-            return result;
-        }
-        public int Save()
-        {
-            return Comment.SaveComment(this);
-        }
-
-        public static void DeleteComment(int commentId)
-        {
-            SqlCommand cmd = new SqlCommand("DeleteComment", ProtestLib.Global.Connection);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@Id", commentId);
-            cmd.Connection.Open();
-            try
-            {
-                Utils.SetContextInfo(cmd.Connection);
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                cmd.Connection.Close();
-            }
-        }
-
-        public object GetPropertyValue(string propertyName)
-        {
-            return Utils.GetPropertyValue<Comment>(this, propertyName);
-        }
-
-        #endregion
-
-    }
+		public object GetPropertyValue(string propertyName)
+		{
+			return typeof(Comment).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(this, null);
+		}
+		#endregion
+	}
 }
-
-
-
-

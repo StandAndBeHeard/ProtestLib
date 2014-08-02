@@ -28,7 +28,7 @@ namespace ProtestLib
 
         internal static Participant GetExtended(DataRow row)
         {
-            Participant result = GetParticipant(row);
+            Participant result = new Participant(row);
             if (row.Table.Columns.Contains("Email") && !Convert.IsDBNull(row["Email"])) result._email = Convert.ToString(row["Email"]);
             if (row.Table.Columns.Contains("UserName") && !Convert.IsDBNull(row["UserName"])) result._userName = Convert.ToString(row["UserName"]);
             return result;
@@ -38,7 +38,7 @@ namespace ProtestLib
 
         public static Participant Load(int userId, int protestId)
         {
-            Participants parts = Participants.LoadParticipants("SELECT * FROM Participants WHERE UserId=@UserId and ProtestId=@ProtestId", CommandType.Text, new SqlParameter[] { new SqlParameter("@UserId", userId), new SqlParameter("@ProtestId", protestId) });
+            Participants parts = Participants.Load("SELECT * FROM Participants WHERE UserId=@UserId and ProtestId=@ProtestId", CommandType.Text, new SqlParameter[] { new SqlParameter("@UserId", userId), new SqlParameter("@ProtestId", protestId) });
             return (parts.Count > 0) ? parts[0] : null;
         }
 

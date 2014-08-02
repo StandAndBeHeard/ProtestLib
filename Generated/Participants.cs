@@ -1,83 +1,82 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ProtestLib
 {
     [Serializable]
-    public partial class Participants : System.Collections.Generic.List<Participant>
+    public partial class Participants : List<Participant>
     {
 
-        #region Constructor
-        public Participants()
+        #region Constructors
+        public Participants() { }
+
+        public Participants(DataTable dt)
         {
+            foreach (DataRow row in dt.Rows) Add(new Participant(row));
         }
         #endregion
 
         #region Methods
-        public static Participants LoadParticipants(string sql, System.Data.CommandType commandType, System.Data.SqlClient.SqlParameter[] parameters)
+        public static Participants Load(string sql, CommandType commandType = CommandType.Text, SqlParameter[] parameters = null)
         {
-            return Participants.ConvertFromDT(Utils.ExecuteQuery(sql, commandType, parameters));
+            return new Participants(DBHelper.ExecuteQuery(sql, commandType, parameters));
         }
 
-        public static Participants ConvertFromDT(DataTable dt)
+        public static Participants LoadAll()
         {
-            Participants result = new Participants();
-            foreach (DataRow row in dt.Rows)
-            {
-                result.Add(Participant.GetParticipant(row));
-            }
-            return result;
+            return Load("LoadParticipantsAll", CommandType.StoredProcedure, null);
         }
 
-        public static Participants LoadAllParticipants()
+        public static Participants LoadByProtestId(System.Int32 protestId)
         {
-            return Participants.LoadParticipants("LoadParticipantsAll", CommandType.StoredProcedure, null);
+            return Load("LoadParticipantsByProtestId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@ProtestId", protestId) });
+        }
+
+        public static Participants LoadByUserId(System.Int32 userId)
+        {
+            return Load("LoadParticipantsByUserId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@UserId", userId) });
         }
 
         public void SaveAll(bool waitForId = true)
         {
-            SqlConnection conn = Global.Connection;
+            SqlConnection conn = DBHelper.Connection;
             try
             {
                 conn.Open();
-                Utils.SetContextInfo(conn);
-                foreach (ProtestLib.Participant participant in this)
+                DBHelper.SetContextInfo(conn);
+                foreach (Participant participant in this)
                 {
-                    SqlCommand cmd = Participant.GetSaveCommand(participant, conn);
+                    SqlCommand cmd = participant.GetSaveCommand(conn);
                     participant.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { conn.Close(); }
         }
 
-        public Participant GetParticipantById(int participantId)
+        public Participant GetById(int id)
         {
-            foreach (Participant participant in this)
-            {
-                if (participant.Id == participantId) return participant;
-            }
+            foreach (Participant participant in this) if (participant.Id == id) return participant;
             return null;
         }
 
-        public static Participants LoadParticipantsByProtestId(System.Int32 protestId)
+        public Participants GetAllByProtestId(System.Int32 protestId)
         {
-            return Participants.LoadParticipants("LoadParticipantsByProtestId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@ProtestId", protestId) });
+            Participants result = new Participants();
+            foreach (Participant participant in this) if (participant.ProtestId == protestId) result.Add(participant);
+            return result;
         }
 
-        public static Participants LoadParticipantsByUserId(System.Int32 userId)
+        public Participants GetAllByUserId(System.Int32 userId)
         {
-            return Participants.LoadParticipants("LoadParticipantsByUserId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@UserId", userId) });
+            Participants result = new Participants();
+            foreach (Participant participant in this) if (participant.UserId == userId) result.Add(participant);
+            return result;
         }
-
 
         public Participants Sort(string column, bool desc)
         {
@@ -88,8 +87,5 @@ namespace ProtestLib
         }
 
         #endregion
-
-
     }
 }
-

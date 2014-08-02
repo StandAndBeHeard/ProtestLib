@@ -34,7 +34,7 @@ namespace ProtestLib
 
         internal static Comment GetExtended(DataRow row)
         {
-            Comment result = GetComment(row);
+            Comment result = new Comment(row);
             if (row.Table.Columns.Contains("Email") && !Convert.IsDBNull(row["Email"])) result._email = Convert.ToString(row["Email"]);
             if (row.Table.Columns.Contains("UserName") && !Convert.IsDBNull(row["UserName"])) result._userName = Convert.ToString(row["UserName"]);
             return result;

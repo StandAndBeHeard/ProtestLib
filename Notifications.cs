@@ -14,7 +14,7 @@ namespace ProtestLib
 
         public static Notifications LoadPending()
         {
-            return Notifications.LoadNotifications("SELECT * FROM Notifications WHERE NotificationDate IS NULL", CommandType.Text, null);
+            return Notifications.Load("SELECT * FROM Notifications WHERE NotificationDate IS NULL", CommandType.Text, null);
         }
 
         public static void SendPending()
@@ -24,7 +24,7 @@ namespace ProtestLib
                 notification.NotificationDate = DateTime.UtcNow;
                 try
                 {
-                    User u = User.LoadUser(notification.UserId);
+                    User u = User.Load(notification.UserId);
                     if (u.ContactDemonstrations) notification.Send(u);
                 }
                 catch { }

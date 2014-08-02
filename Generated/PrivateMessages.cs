@@ -1,83 +1,82 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ProtestLib
 {
     [Serializable]
-    public partial class PrivateMessages : System.Collections.Generic.List<PrivateMessage>
+    public partial class PrivateMessages : List<PrivateMessage>
     {
 
-        #region Constructor
-        public PrivateMessages()
+        #region Constructors
+        public PrivateMessages() { }
+
+        public PrivateMessages(DataTable dt)
         {
+            foreach (DataRow row in dt.Rows) Add(new PrivateMessage(row));
         }
         #endregion
 
         #region Methods
-        public static PrivateMessages LoadPrivateMessages(string sql, System.Data.CommandType commandType, System.Data.SqlClient.SqlParameter[] parameters)
+        public static PrivateMessages Load(string sql, CommandType commandType = CommandType.Text, SqlParameter[] parameters = null)
         {
-            return PrivateMessages.ConvertFromDT(Utils.ExecuteQuery(sql, commandType, parameters));
+            return new PrivateMessages(DBHelper.ExecuteQuery(sql, commandType, parameters));
         }
 
-        public static PrivateMessages ConvertFromDT(DataTable dt)
+        public static PrivateMessages LoadAll()
         {
-            PrivateMessages result = new PrivateMessages();
-            foreach (DataRow row in dt.Rows)
-            {
-                result.Add(PrivateMessage.GetPrivateMessage(row));
-            }
-            return result;
+            return Load("LoadPrivateMessagesAll", CommandType.StoredProcedure, null);
         }
 
-        public static PrivateMessages LoadAllPrivateMessages()
+        public static PrivateMessages LoadByFromId(System.Int32 fromId)
         {
-            return PrivateMessages.LoadPrivateMessages("LoadPrivateMessagesAll", CommandType.StoredProcedure, null);
+            return Load("LoadPrivateMessagesByFromId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@FromId", fromId) });
+        }
+
+        public static PrivateMessages LoadByToId(System.Int32 toId)
+        {
+            return Load("LoadPrivateMessagesByToId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@ToId", toId) });
         }
 
         public void SaveAll(bool waitForId = true)
         {
-            SqlConnection conn = Global.Connection;
+            SqlConnection conn = DBHelper.Connection;
             try
             {
                 conn.Open();
-                Utils.SetContextInfo(conn);
-                foreach (ProtestLib.PrivateMessage privateMessage in this)
+                DBHelper.SetContextInfo(conn);
+                foreach (PrivateMessage privateMessage in this)
                 {
-                    SqlCommand cmd = PrivateMessage.GetSaveCommand(privateMessage, conn);
+                    SqlCommand cmd = privateMessage.GetSaveCommand(conn);
                     privateMessage.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { conn.Close(); }
         }
 
-        public PrivateMessage GetPrivateMessageById(int privateMessageId)
+        public PrivateMessage GetById(int id)
         {
-            foreach (PrivateMessage privateMessage in this)
-            {
-                if (privateMessage.Id == privateMessageId) return privateMessage;
-            }
+            foreach (PrivateMessage privateMessage in this) if (privateMessage.Id == id) return privateMessage;
             return null;
         }
 
-        public static PrivateMessages LoadPrivateMessagesByFromId(System.Int32 fromId)
+        public PrivateMessages GetAllByFromId(System.Int32 fromId)
         {
-            return PrivateMessages.LoadPrivateMessages("LoadPrivateMessagesByFromId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@FromId", fromId) });
+            PrivateMessages result = new PrivateMessages();
+            foreach (PrivateMessage privateMessage in this) if (privateMessage.FromId == fromId) result.Add(privateMessage);
+            return result;
         }
 
-        public static PrivateMessages LoadPrivateMessagesByToId(System.Int32 toId)
+        public PrivateMessages GetAllByToId(System.Int32 toId)
         {
-            return PrivateMessages.LoadPrivateMessages("LoadPrivateMessagesByToId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@ToId", toId) });
+            PrivateMessages result = new PrivateMessages();
+            foreach (PrivateMessage privateMessage in this) if (privateMessage.ToId == toId) result.Add(privateMessage);
+            return result;
         }
-
 
         public PrivateMessages Sort(string column, bool desc)
         {
@@ -88,8 +87,5 @@ namespace ProtestLib
         }
 
         #endregion
-
-
     }
 }
-

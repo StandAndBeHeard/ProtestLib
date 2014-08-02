@@ -48,6 +48,7 @@
     <Compile Include="Comments.cs" />
     <Compile Include="Generated\Comment.cs" />
     <Compile Include="Generated\Comments.cs" />
+    <Compile Include="Generated\DBHelper.cs" />
     <Compile Include="Generated\ErrorLog.cs" />
     <Compile Include="Generated\ErrorLogs.cs" />
     <Compile Include="Generated\Notification.cs" />

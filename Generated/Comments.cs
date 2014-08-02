@@ -1,78 +1,70 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ProtestLib
 {
     [Serializable]
-    public partial class Comments : System.Collections.Generic.List<Comment>
+    public partial class Comments : List<Comment>
     {
 
-        #region Constructor
-        public Comments()
+        #region Constructors
+        public Comments() { }
+
+        public Comments(DataTable dt)
         {
+            foreach (DataRow row in dt.Rows) Add(new Comment(row));
         }
         #endregion
 
         #region Methods
-        public static Comments LoadComments(string sql, System.Data.CommandType commandType, System.Data.SqlClient.SqlParameter[] parameters)
+        public static Comments Load(string sql, CommandType commandType = CommandType.Text, SqlParameter[] parameters = null)
         {
-            return Comments.ConvertFromDT(Utils.ExecuteQuery(sql, commandType, parameters));
+            return new Comments(DBHelper.ExecuteQuery(sql, commandType, parameters));
         }
 
-        public static Comments ConvertFromDT(DataTable dt)
+        public static Comments LoadAll()
         {
-            Comments result = new Comments();
-            foreach (DataRow row in dt.Rows)
-            {
-                result.Add(Comment.GetComment(row));
-            }
-            return result;
+            return Load("LoadCommentsAll", CommandType.StoredProcedure, null);
         }
 
-        public static Comments LoadAllComments()
+        public static Comments LoadByUserId(System.Int32 userId)
         {
-            return Comments.LoadComments("LoadCommentsAll", CommandType.StoredProcedure, null);
+            return Load("LoadCommentsByUserId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@UserId", userId) });
         }
 
         public void SaveAll(bool waitForId = true)
         {
-            SqlConnection conn = Global.Connection;
+            SqlConnection conn = DBHelper.Connection;
             try
             {
                 conn.Open();
-                Utils.SetContextInfo(conn);
-                foreach (ProtestLib.Comment comment in this)
+                DBHelper.SetContextInfo(conn);
+                foreach (Comment comment in this)
                 {
-                    SqlCommand cmd = Comment.GetSaveCommand(comment, conn);
+                    SqlCommand cmd = comment.GetSaveCommand(conn);
                     comment.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { conn.Close(); }
         }
 
-        public Comment GetCommentById(int commentId)
+        public Comment GetById(int id)
         {
-            foreach (Comment comment in this)
-            {
-                if (comment.Id == commentId) return comment;
-            }
+            foreach (Comment comment in this) if (comment.Id == id) return comment;
             return null;
         }
 
-        public static Comments LoadCommentsByUserId(System.Int32 userId)
+        public Comments GetAllByUserId(System.Int32 userId)
         {
-            return Comments.LoadComments("LoadCommentsByUserId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@UserId", userId) });
+            Comments result = new Comments();
+            foreach (Comment comment in this) if (comment.UserId == userId) result.Add(comment);
+            return result;
         }
-
 
         public Comments Sort(string column, bool desc)
         {
@@ -83,8 +75,5 @@ namespace ProtestLib
         }
 
         #endregion
-
-
     }
 }
-

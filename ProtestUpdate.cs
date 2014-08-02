@@ -10,7 +10,7 @@ namespace ProtestLib
     {
         public void CreateNotifications(Protest protest)
         {
-            foreach (Participant part in Participants.LoadParticipantsByProtestId(this.ProtestId))
+            foreach (Participant part in Participants.LoadByProtestId(this.ProtestId))
             {
                 Notification n = new Notification();
                 n.Body = this.Body;

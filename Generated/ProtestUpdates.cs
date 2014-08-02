@@ -1,78 +1,70 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ProtestLib
 {
     [Serializable]
-    public partial class ProtestUpdates : System.Collections.Generic.List<ProtestUpdate>
+    public partial class ProtestUpdates : List<ProtestUpdate>
     {
 
-        #region Constructor
-        public ProtestUpdates()
+        #region Constructors
+        public ProtestUpdates() { }
+
+        public ProtestUpdates(DataTable dt)
         {
+            foreach (DataRow row in dt.Rows) Add(new ProtestUpdate(row));
         }
         #endregion
 
         #region Methods
-        public static ProtestUpdates LoadProtestUpdates(string sql, System.Data.CommandType commandType, System.Data.SqlClient.SqlParameter[] parameters)
+        public static ProtestUpdates Load(string sql, CommandType commandType = CommandType.Text, SqlParameter[] parameters = null)
         {
-            return ProtestUpdates.ConvertFromDT(Utils.ExecuteQuery(sql, commandType, parameters));
+            return new ProtestUpdates(DBHelper.ExecuteQuery(sql, commandType, parameters));
         }
 
-        public static ProtestUpdates ConvertFromDT(DataTable dt)
+        public static ProtestUpdates LoadAll()
         {
-            ProtestUpdates result = new ProtestUpdates();
-            foreach (DataRow row in dt.Rows)
-            {
-                result.Add(ProtestUpdate.GetProtestUpdate(row));
-            }
-            return result;
+            return Load("LoadProtestUpdatesAll", CommandType.StoredProcedure, null);
         }
 
-        public static ProtestUpdates LoadAllProtestUpdates()
+        public static ProtestUpdates LoadByProtestId(System.Int32 protestId)
         {
-            return ProtestUpdates.LoadProtestUpdates("LoadProtestUpdatesAll", CommandType.StoredProcedure, null);
+            return Load("LoadProtestUpdatesByProtestId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@ProtestId", protestId) });
         }
 
         public void SaveAll(bool waitForId = true)
         {
-            SqlConnection conn = Global.Connection;
+            SqlConnection conn = DBHelper.Connection;
             try
             {
                 conn.Open();
-                Utils.SetContextInfo(conn);
-                foreach (ProtestLib.ProtestUpdate protestUpdate in this)
+                DBHelper.SetContextInfo(conn);
+                foreach (ProtestUpdate protestUpdate in this)
                 {
-                    SqlCommand cmd = ProtestUpdate.GetSaveCommand(protestUpdate, conn);
+                    SqlCommand cmd = protestUpdate.GetSaveCommand(conn);
                     protestUpdate.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { conn.Close(); }
         }
 
-        public ProtestUpdate GetProtestUpdateById(int protestUpdateId)
+        public ProtestUpdate GetById(int id)
         {
-            foreach (ProtestUpdate protestUpdate in this)
-            {
-                if (protestUpdate.Id == protestUpdateId) return protestUpdate;
-            }
+            foreach (ProtestUpdate protestUpdate in this) if (protestUpdate.Id == id) return protestUpdate;
             return null;
         }
 
-        public static ProtestUpdates LoadProtestUpdatesByProtestId(System.Int32 protestId)
+        public ProtestUpdates GetAllByProtestId(System.Int32 protestId)
         {
-            return ProtestUpdates.LoadProtestUpdates("LoadProtestUpdatesByProtestId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@ProtestId", protestId) });
+            ProtestUpdates result = new ProtestUpdates();
+            foreach (ProtestUpdate protestUpdate in this) if (protestUpdate.ProtestId == protestId) result.Add(protestUpdate);
+            return result;
         }
-
 
         public ProtestUpdates Sort(string column, bool desc)
         {
@@ -83,8 +75,5 @@ namespace ProtestLib
         }
 
         #endregion
-
-
     }
 }
-

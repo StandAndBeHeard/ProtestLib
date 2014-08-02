@@ -22,7 +22,7 @@ namespace ProtestLib
 
         public static Protest Load(string url)
         {
-            Protests result = Protests.LoadProtests("SELECT * FROM Protests WHERE Url=@Url", CommandType.Text, new SqlParameter[] { new SqlParameter("@Url", url) });
+            Protests result = Protests.Load("SELECT * FROM Protests WHERE Url=@Url", CommandType.Text, new SqlParameter[] { new SqlParameter("@Url", url) });
             return (result.Count>0) ? result[0] : null;
         }
 

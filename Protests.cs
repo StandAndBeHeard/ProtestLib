@@ -12,7 +12,7 @@ namespace ProtestLib
     {
         public static void UpdateStatus()
         {
-            foreach (Protest p in Protests.LoadProtests("SELECT * FROM Protests WHERE Status='Open' and CutoffDate < @CutoffDate", CommandType.Text, new SqlParameter[]{new SqlParameter("@CutoffDate", DateTime.UtcNow)}))
+            foreach (Protest p in Protests.Load("SELECT * FROM Protests WHERE Status='Open' and CutoffDate < @CutoffDate", CommandType.Text, new SqlParameter[]{new SqlParameter("@CutoffDate", DateTime.UtcNow)}))
             {
                 p.Status = ProtestStatus.Failed;
                 p.Save();
@@ -27,7 +27,7 @@ namespace ProtestLib
 
         public static Protests LoadActive()
         {
-            return Protests.LoadProtests("SELECT * FROM Protests WHERE Status IN ('" + ProtestStatus.Open + "', '" + ProtestStatus.Success + "') ORDER BY ProtestDate", CommandType.Text, null);
+            return Protests.Load("SELECT * FROM Protests WHERE Status IN ('" + ProtestStatus.Open + "', '" + ProtestStatus.Success + "') ORDER BY ProtestDate", CommandType.Text, null);
         }
     }
 }

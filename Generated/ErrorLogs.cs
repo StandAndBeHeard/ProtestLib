@@ -1,73 +1,58 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ProtestLib
 {
     [Serializable]
-    public partial class ErrorLogs : System.Collections.Generic.List<ErrorLog>
+    public partial class ErrorLogs : List<ErrorLog>
     {
 
-        #region Constructor
-        public ErrorLogs()
+        #region Constructors
+        public ErrorLogs() { }
+
+        public ErrorLogs(DataTable dt)
         {
+            foreach (DataRow row in dt.Rows) Add(new ErrorLog(row));
         }
         #endregion
 
         #region Methods
-        public static ErrorLogs LoadErrorLogs(string sql, System.Data.CommandType commandType, System.Data.SqlClient.SqlParameter[] parameters)
+        public static ErrorLogs Load(string sql, CommandType commandType = CommandType.Text, SqlParameter[] parameters = null)
         {
-            return ErrorLogs.ConvertFromDT(Utils.ExecuteQuery(sql, commandType, parameters));
+            return new ErrorLogs(DBHelper.ExecuteQuery(sql, commandType, parameters));
         }
 
-        public static ErrorLogs ConvertFromDT(DataTable dt)
+        public static ErrorLogs LoadAll()
         {
-            ErrorLogs result = new ErrorLogs();
-            foreach (DataRow row in dt.Rows)
-            {
-                result.Add(ErrorLog.GetErrorLog(row));
-            }
-            return result;
-        }
-
-        public static ErrorLogs LoadAllErrorLogs()
-        {
-            return ErrorLogs.LoadErrorLogs("LoadErrorLogsAll", CommandType.StoredProcedure, null);
+            return Load("LoadErrorLogsAll", CommandType.StoredProcedure, null);
         }
 
         public void SaveAll(bool waitForId = true)
         {
-            SqlConnection conn = Global.Connection;
+            SqlConnection conn = DBHelper.Connection;
             try
             {
                 conn.Open();
-                Utils.SetContextInfo(conn);
-                foreach (ProtestLib.ErrorLog errorLog in this)
+                DBHelper.SetContextInfo(conn);
+                foreach (ErrorLog errorLog in this)
                 {
-                    SqlCommand cmd = ErrorLog.GetSaveCommand(errorLog, conn);
+                    SqlCommand cmd = errorLog.GetSaveCommand(conn);
                     errorLog.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { conn.Close(); }
         }
 
-        public ErrorLog GetErrorLogById(int errorLogId)
+        public ErrorLog GetById(int id)
         {
-            foreach (ErrorLog errorLog in this)
-            {
-                if (errorLog.Id == errorLogId) return errorLog;
-            }
+            foreach (ErrorLog errorLog in this) if (errorLog.Id == id) return errorLog;
             return null;
         }
-
 
         public ErrorLogs Sort(string column, bool desc)
         {
@@ -78,8 +63,5 @@ namespace ProtestLib
         }
 
         #endregion
-
-
     }
 }
-

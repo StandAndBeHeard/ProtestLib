@@ -1,78 +1,70 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ProtestLib
 {
     [Serializable]
-    public partial class Protests : System.Collections.Generic.List<Protest>
+    public partial class Protests : List<Protest>
     {
 
-        #region Constructor
-        public Protests()
+        #region Constructors
+        public Protests() { }
+
+        public Protests(DataTable dt)
         {
+            foreach (DataRow row in dt.Rows) Add(new Protest(row));
         }
         #endregion
 
         #region Methods
-        public static Protests LoadProtests(string sql, System.Data.CommandType commandType, System.Data.SqlClient.SqlParameter[] parameters)
+        public static Protests Load(string sql, CommandType commandType = CommandType.Text, SqlParameter[] parameters = null)
         {
-            return Protests.ConvertFromDT(Utils.ExecuteQuery(sql, commandType, parameters));
+            return new Protests(DBHelper.ExecuteQuery(sql, commandType, parameters));
         }
 
-        public static Protests ConvertFromDT(DataTable dt)
+        public static Protests LoadAll()
         {
-            Protests result = new Protests();
-            foreach (DataRow row in dt.Rows)
-            {
-                result.Add(Protest.GetProtest(row));
-            }
-            return result;
+            return Load("LoadProtestsAll", CommandType.StoredProcedure, null);
         }
 
-        public static Protests LoadAllProtests()
+        public static Protests LoadByOrganizerId(System.Int32 organizerId)
         {
-            return Protests.LoadProtests("LoadProtestsAll", CommandType.StoredProcedure, null);
+            return Load("LoadProtestsByOrganizerId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@OrganizerId", organizerId) });
         }
 
         public void SaveAll(bool waitForId = true)
         {
-            SqlConnection conn = Global.Connection;
+            SqlConnection conn = DBHelper.Connection;
             try
             {
                 conn.Open();
-                Utils.SetContextInfo(conn);
-                foreach (ProtestLib.Protest protest in this)
+                DBHelper.SetContextInfo(conn);
+                foreach (Protest protest in this)
                 {
-                    SqlCommand cmd = Protest.GetSaveCommand(protest, conn);
+                    SqlCommand cmd = protest.GetSaveCommand(conn);
                     protest.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { conn.Close(); }
         }
 
-        public Protest GetProtestById(int protestId)
+        public Protest GetById(int id)
         {
-            foreach (Protest protest in this)
-            {
-                if (protest.Id == protestId) return protest;
-            }
+            foreach (Protest protest in this) if (protest.Id == id) return protest;
             return null;
         }
 
-        public static Protests LoadProtestsByOrganizerId(System.Int32 organizerId)
+        public Protests GetAllByOrganizerId(System.Int32 organizerId)
         {
-            return Protests.LoadProtests("LoadProtestsByOrganizerId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@OrganizerId", organizerId) });
+            Protests result = new Protests();
+            foreach (Protest protest in this) if (protest.OrganizerId == organizerId) result.Add(protest);
+            return result;
         }
-
 
         public Protests Sort(string column, bool desc)
         {
@@ -83,8 +75,5 @@ namespace ProtestLib
         }
 
         #endregion
-
-
     }
 }
-

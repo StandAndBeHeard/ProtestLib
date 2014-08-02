@@ -1,78 +1,70 @@
-﻿using System;
+﻿
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ProtestLib
 {
     [Serializable]
-    public partial class Notifications : System.Collections.Generic.List<Notification>
+    public partial class Notifications : List<Notification>
     {
 
-        #region Constructor
-        public Notifications()
+        #region Constructors
+        public Notifications() { }
+
+        public Notifications(DataTable dt)
         {
+            foreach (DataRow row in dt.Rows) Add(new Notification(row));
         }
         #endregion
 
         #region Methods
-        public static Notifications LoadNotifications(string sql, System.Data.CommandType commandType, System.Data.SqlClient.SqlParameter[] parameters)
+        public static Notifications Load(string sql, CommandType commandType = CommandType.Text, SqlParameter[] parameters = null)
         {
-            return Notifications.ConvertFromDT(Utils.ExecuteQuery(sql, commandType, parameters));
+            return new Notifications(DBHelper.ExecuteQuery(sql, commandType, parameters));
         }
 
-        public static Notifications ConvertFromDT(DataTable dt)
+        public static Notifications LoadAll()
         {
-            Notifications result = new Notifications();
-            foreach (DataRow row in dt.Rows)
-            {
-                result.Add(Notification.GetNotification(row));
-            }
-            return result;
+            return Load("LoadNotificationsAll", CommandType.StoredProcedure, null);
         }
 
-        public static Notifications LoadAllNotifications()
+        public static Notifications LoadByUserId(System.Int32 userId)
         {
-            return Notifications.LoadNotifications("LoadNotificationsAll", CommandType.StoredProcedure, null);
+            return Load("LoadNotificationsByUserId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@UserId", userId) });
         }
 
         public void SaveAll(bool waitForId = true)
         {
-            SqlConnection conn = Global.Connection;
+            SqlConnection conn = DBHelper.Connection;
             try
             {
                 conn.Open();
-                Utils.SetContextInfo(conn);
-                foreach (ProtestLib.Notification notification in this)
+                DBHelper.SetContextInfo(conn);
+                foreach (Notification notification in this)
                 {
-                    SqlCommand cmd = Notification.GetSaveCommand(notification, conn);
+                    SqlCommand cmd = notification.GetSaveCommand(conn);
                     notification.Id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                conn.Close();
-            }
+            catch (Exception ex) { throw ex; }
+            finally { conn.Close(); }
         }
 
-        public Notification GetNotificationById(int notificationId)
+        public Notification GetById(int id)
         {
-            foreach (Notification notification in this)
-            {
-                if (notification.Id == notificationId) return notification;
-            }
+            foreach (Notification notification in this) if (notification.Id == id) return notification;
             return null;
         }
 
-        public static Notifications LoadNotificationsByUserId(System.Int32 userId)
+        public Notifications GetAllByUserId(System.Int32 userId)
         {
-            return Notifications.LoadNotifications("LoadNotificationsByUserId", CommandType.StoredProcedure, new SqlParameter[] { new SqlParameter("@UserId", userId) });
+            Notifications result = new Notifications();
+            foreach (Notification notification in this) if (notification.UserId == userId) result.Add(notification);
+            return result;
         }
-
 
         public Notifications Sort(string column, bool desc)
         {
@@ -83,8 +75,5 @@ namespace ProtestLib
         }
 
         #endregion
-
-
     }
 }
-

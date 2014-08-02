@@ -15,6 +15,7 @@ namespace ProtestLib
         {
             Comments result = new Comments();
             foreach (DataRow row in dt.Rows) result.Add(Comment.GetExtended(row));
+            
             return result;
         }
 
